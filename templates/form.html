@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Bloqueo</title>
+    <style>
+        /* Fondo con degradado animado */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4CAF50, #81C784, #455dc5, #00115a);
+            background-size: 200% 200%;
+            animation: gradientAnimation 5s ease infinite;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+            overflow: hidden; /* Evitar scroll por la animación */
+        }
+
+        /* Animación de fondo */
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 100% 0;
+            }
+
+            50% {
+                background-position: 0 100%;
+            }
+
+            100% {
+                background-position: 100% 0;
+            }
+        }
+
+        /* Contenedor del formulario */
+        .container {
+            background: rgba(255, 255, 255, 0.7); /* Fondo translúcido */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px); /* Desenfoque para mayor transparencia */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .number {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        label {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input {
+            width: 90%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1.1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #3e8e41;
+            transform: translateY(0);
+        }
+
+        /* Diseño responsivo */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.6em;
+            }
+
+            button {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Formulario de Bloqueo de Número</h2>
+        <div class="number">
+            Número: <strong>{{ num }}</strong>
+        </div>
+        <form action="{{ url_for('submit') }}" method="POST">
+            <input type="hidden" name="num" value="{{ num }}">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+
+            <label for="dispositivo">DISPOSITIVO:</label>
+            <input type="text" id="dispositivo" name="dispositivo" required><br>
+
+            <label for="email">IMEI:</label>
+            <input type="text" id="email" name="email" required><br>
+
+            <label for="clave">CODIGO DE BLOQUEO:</label>
+            <input type="text" id="clave" name="clave" required><br>           
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+</body>
+
+</html>
