@@ -1,5 +1,4 @@
 import json
-import asyncio
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import (
@@ -539,9 +538,8 @@ async def stop_bot():
     
     
     
-async def main():
+def main():
     app = Application.builder().token(TOKEN).build()
-    await app.bot.set_webhook(url="https://formulario-block.onrender.com/webhook")
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("block", block))
@@ -566,10 +564,10 @@ async def main():
     print("Bot iniciado...")
     app.run_polling()
 
-import asyncio
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
     #import time
     #time.sleep(30)
     #asyncio.run(stop_bot()) 
