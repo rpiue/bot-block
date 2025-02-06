@@ -123,7 +123,7 @@ async def block(update: Update, context: CallbackContext):
 
     # Verificar que el comando tenga un número
     if len(context.args) != 1 or not context.args[0].isdigit():
-        await update.message.reply_text("⚠️ El comando se ejecuta asi: /block (numero).")
+        await update.message.reply_text("⚠️ El comando se ejecuta asi:\n/block 000000000.")
         return
 
     number_to_block = context.args[0]
@@ -372,43 +372,25 @@ async def me_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if profile_photos.total_count > 0:
             # Tomamos la primera foto de perfil
             photo_file = profile_photos.photos[0][-1].file_id
+        else:
+            photo_file = img
+            
+        
+        caption = (
+                f"📝 Información de {name_user}:\n\n"
+                f"🆔 <b>USER ID:</b> <code>{user_id}</code>\n"
+                f"👤 <b>Nombre:</b> {name_user}\n"
+                f"💰 <b>Créditos:</b> {creditos if creditos is not None else 'No disponible'}"
+        )
 
             # Si se trata de un callback_query, usar edit_message_media, sino reply_text
-            if update.callback_query:
-                await update.callback_query.edit_message_media(
-                    media=InputMediaPhoto(
-                        photo_file,
-                        caption=f"📝 Información de {name_user}:\n\n"
-                       f"🆔 USER ID: <code>{user_id}</code>\n"
-                       f"👤 Nombre: {name_user}\n"
-                       f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
-                       parse_mode="HTML"
-                    )
-                )
-            else:
-                await update.message.reply_photo(
-                    photo=photo_file,
-                    caption=f"📝 Información de {name_user}:\n\n"
-                    f"🆔 USER ID: <code>{user_id}</code>\n"
-                    f"👤 Nombre: {name_user}\n"
-                    f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
-                    parse_mode="HTML"
-                )
-        else:
-            # Si no hay foto de perfil, mostrar solo los datos del usuario
-            message = (
-                f"📝 Información de {name_user}:\n\n"
-                f"🆔 USER ID: <code>{user_id}</code>\n"
-                f"👤 Nombre: {name_user}\n"
-                f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
+        if update.callback_query:
+            await update.callback_query.edit_message_media(
+                media=InputMediaPhoto(photo_file, caption=caption, parse_mode="HTML")
             )
+        else:
+            await update.message.reply_photo(photo=photo_file, caption=caption, parse_mode="HTML")
 
-            # Si se trata de un callback_query, usar edit_message_text, sino reply_text
-            if update.callback_query:
-                await update.callback_query.edit_message_text(message, parse_mode="HTML")
-            else:
-                await update.message.reply_text(message,parse_mode="HTML")
-                
     except:
         print(f"Error al intentar responder el mensaje:")
 
@@ -495,12 +477,12 @@ async def block_user(update: Update, context: CallbackContext):
     # Verifica si el mensaje tiene texto, de ser así lo edita
     if query.message.text:
         await query.edit_message_text(
-            text="🎉 Has hecho clic en 'Bloquear'. Por favor, escribe el comando /block (numero)."
+            text="🎉 Has hecho clic en 'Bloquear'.\nPor favor, escribe el comando\n/block 000000000."
         )
     else:
         # Si no tiene texto, se envía un nuevo mensaje
         await query.message.reply_text(
-            text="🎉 Has hecho clic en 'Bloquear'. Por favor, escribe el comando /block (numero)."
+            text="🎉 Has hecho clic en 'Bloquear'.\nPor favor, escribe el comando\n/block 000000000."
         )
 
     # Si quieres actualizar los botones también, puedes hacerlo después
