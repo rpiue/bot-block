@@ -19,7 +19,7 @@ import sys
 
 print(sys.version)
 
-TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
+TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
 GROUPS_FILE = "groups.json"  # Archivo donde se guardan los grupos
 DATA_GROUP_ID = -4784656073  # ID del grupo "Grupo data"
 USER_DETAILS = {}
@@ -126,34 +126,44 @@ async def block(update: Update, context: CallbackContext):
         return
 
     number_to_block = context.args[0]
-
-    if pending_requests[user.id]:
-        await update.message.reply_text(
-            "⚠️ Ya tienes una solicitud pendiente. Por favor, espera una respuesta antes de enviar otra solicitud."
-        )
-        return
-    else:
-        from datetime import datetime, time
-        import pytz
-        peru_tz = pytz.timezone('America/Lima')
-        current_time = datetime.now(peru_tz).time()
-        start_time = time(8, 0, 0)  # 8:00 AM
-        end_time = time(12, 0, 0)  # 12:00 PM
-
-        if start_time <= current_time <= end_time:
+    if user.id in pending_requests:
+        if pending_requests[user.id]['status'] == 'pending' :  # Verificamos si el usuario ya tiene una solicitud pendiente
             await update.message.reply_text(
-                "✅ Solicitud Enviada. Por favor, espera una respuesta antes de enviar otra solicitud."
+                    "⚠️ Ya tienes una solicitud pendiente. Espera una respuesta antes de hacer otra consulta."
+                )
+            return
+        elif pending_requests[user.id]['number'] == number_to_block:
+            
+            await update.message.reply_text(
+                    f"⚠️ Ya se ha bloqueado el número {number_to_block}.\nConsulta por otro numero",
             )
+            return
         else:
-            await update.message.reply_text(
-                "✅ <b>Tu solicitud ha sido enviada.</b>\n\n"
-                "⚠️ Pero no hay solicitudes telefónicas en este momento.\n\n"
-                "🕒 El horario de atención es de <b>8:00 AM a 12:00 PM.</b>"
-                , parse_mode="HTML"
-            )
+            pass
+
+    
+    from datetime import datetime, time
+    import pytz
+    peru_tz = pytz.timezone('America/Lima')
+    current_time = datetime.now(peru_tz).time()
+    start_time = time(8, 0, 0)  # 8:00 AM
+    end_time = time(12, 0, 0)  # 12:00 PM
+    if start_time <= current_time <= end_time:
+        await update.message.reply_text(
+            "✅ Solicitud Enviada. Por favor, espera una respuesta antes de enviar otra solicitud."
+        )
+    else:
+        await update.message.reply_text(
+            "✅ <b>Tu solicitud ha sido enviada.</b>\n\n"
+            "⚠️ Pero no hay solicitudes telefónicas en este momento.\n\n"
+            "🕒 El horario de atención es de <b>8:00 AM a 12:00 PM.</b>"
+            , parse_mode="HTML"
+        )
         #return
     # Marcar la solicitud como pendiente para este usuario
-    pending_requests[user.id] = "pending"
+    #pending_requests[user.id] = number_to_block
+    pending_requests[user.id] = {'number': number_to_block, 'status': 'pending'}
+
     try:
         # Crear el mensaje para el grupo "Grupo data"
         keyboard = [
@@ -183,9 +193,9 @@ async def block(update: Update, context: CallbackContext):
         await update.message.reply_text(
             f"❌ Ocurrió un error al intentar enviar el mensaje al grupo de administración. Error: {e}"
         )
-        if pending_requests[user.id]:
+        if pending_requests[user.id]['status']:
             print("Error sea none ahora el pendiente")
-            pending_requests[user.id] = None
+            pending_requests[user.id]['status'] = None
     finally:
         # Después de intentar enviar el mensaje, restablecemos el estado pendiente
         pass
@@ -280,8 +290,8 @@ async def handle_response(update: Update, context: CallbackContext):
     
     id_client = int(original_group_id)
     
-    if pending_requests[id_client]:
-        pending_requests[id_client] = None
+    if pending_requests[id_client]['status']:
+        pending_requests[id_client]['status'] = None
 
 
 async def register(update: Update, context: CallbackContext):
