@@ -1,5 +1,5 @@
 import json
-import asyncio
+from urllib.parse import quote
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import (
@@ -18,7 +18,7 @@ import sys
 
 print(sys.version)
 
-TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
+TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
 GROUPS_FILE = "groups.json"  # Archivo donde se guardan los grupos
 DATA_GROUP_ID = -4784656073  # ID del grupo "Grupo data"
 USER_DETAILS = {}
@@ -356,30 +356,35 @@ async def me_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     media=InputMediaPhoto(
                         photo_file,
                         caption=f"📝 Información de {name_user}:\n\n"
-                        f"Nombre: {name_user}\n"
-                        f"Créditos: {creditos if creditos is not None else 'No disponible'}",
+                       f"🆔 USER ID: <code>{user_id}</code>\n"
+                       f"👤 Nombre: {name_user}\n"
+                       f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
+                       parse_mode="HTML"
                     )
                 )
             else:
                 await update.message.reply_photo(
                     photo=photo_file,
                     caption=f"📝 Información de {name_user}:\n\n"
-                    f"Nombre: {name_user}\n"
-                    f"Créditos: {creditos if creditos is not None else 'No disponible'}",
+                    f"🆔 USER ID: <code>{user_id}</code>\n"
+                    f"👤 Nombre: {name_user}\n"
+                    f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
+                    parse_mode="HTML"
                 )
         else:
             # Si no hay foto de perfil, mostrar solo los datos del usuario
             message = (
                 f"📝 Información de {name_user}:\n\n"
-                f"Nombre: {name_user}\n"
-                f"Créditos: {creditos if creditos is not None else 'No disponible'}"
+                f"🆔 USER ID: <code>{user_id}</code>\n"
+                f"👤 Nombre: {name_user}\n"
+                f"💰 Créditos: {creditos if creditos is not None else 'No disponible'}",
             )
 
             # Si se trata de un callback_query, usar edit_message_text, sino reply_text
             if update.callback_query:
-                await update.callback_query.edit_message_text(message)
+                await update.callback_query.edit_message_text(message, parse_mode="HTML")
             else:
-                await update.message.reply_text(message)
+                await update.message.reply_text(message,parse_mode="HTML")
                 
     except:
         print(f"Error al intentar responder el mensaje:")
@@ -391,17 +396,23 @@ async def handle_buy_credits(
     # Crear el texto con los precios y detalles de la compra
     creditos_info = (
         "💳 *Créditos disponibles*:\n"
-        "  - *18 Créditos*: 13 PEN\n"
-        "  - *36 Créditos*: 26 PEN\n"
-        "  - *54 Créditos*: 39 PEN\n"
-        "  - *72 Créditos*: 50 PEN\n"
-        "  - *96 Créditos*: 65 PEN\n"
+        "  - 18 Créditos → 13 PEN\n"
+        "  - 36 Créditos → 26 PEN\n"
+        "  - 54 Créditos → 39 PEN\n"
+        "  - 72 Créditos → 50 PEN\n"
+        "  - 96 Créditos → 65 PEN\n"
         "\n*Para comprar créditos, presiona el botón de abajo.*"
     )
+    user_id = update.message.from_user.id  # Obtiene el ID del usuario
+    mensaje = f"Hola, quiero comprar créditos. Mi ID es: {user_id}"
+    mensaje_codificado = quote(mensaje)
+
+
+    url = f"https://t.me/block_movil?text={mensaje_codificado}"
 
     # Botones para comprar créditos y volver
     buttons = [
-        [InlineKeyboardButton("Comprar", url="https://t.me/block_movil?start=buy")],
+        [InlineKeyboardButton("Comprar", url=url)],
         [InlineKeyboardButton("Volver", callback_data="back_to_start")],
     ]
 
@@ -537,17 +548,55 @@ async def stop_bot():
     else:
         print("El bot no está en ejecución, no se puede detener.")
     
-    
-    
-async def main():
+
+
+async def dar_creditos(update: Update, context: CallbackContext) -> None:
+    try:
+        user = update.message.from_user
+
+        if user.id not in [7304438558, 5387722607]:
+            return
+        
+        
+        target_user = context.args[0]  # ID o nombre de usuario del destinatario
+        cantidad = int(context.args[1])  # Cantidad de créditos
+
+        if cantidad <= 0:
+            await update.message.reply_text("La cantidad de créditos debe ser mayor que cero.")
+            return
+        
+        if str(target_user) not in map(str, dataUser.REGISTERED_USERS):
+            await update.message.reply_text(
+                f"⚠️ El usuario debe registrarse antes de darle créditos. ID: <code>{target_user}</code>",
+                parse_mode="HTML"  # Para que el ID sea copiable
+            )
+            return
+        
+        dataUser.Usuario.agg_creditos(target_user, cantidad)
+        await update.message.reply_text(f"Has dado {cantidad} créditos a {target_user}. 🎉")
+
+    except (IndexError, ValueError):
+        await update.message.reply_text(
+            "⚠️ <b>Uso incorrecto del comando.</b>\n\n"
+            "✅ <b>Formato correcto:</b> <code>/dar &lt;user_id&gt; &lt;opción&gt;</code>\n\n"
+            "💳 <b>Créditos disponibles:</b>\n"
+            "  📌 <b>opc 1</b> - 18 Créditos\n"
+            "  📌 <b>opc 2</b> - 36 Créditos\n"
+            "  📌 <b>opc 3</b> - 54 Créditos\n"
+            "  📌 <b>opc 4</b> - 72 Créditos\n"
+            "  📌 <b>opc 5</b> - 96 Créditos",
+            parse_mode="HTML"
+        )
+
+def main():
     app = Application.builder().token(TOKEN).build()
-    await app.bot.set_webhook(url="https://formulario-block.onrender.com/webhook")
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("block", block))
     app.add_handler(CommandHandler("me", me_info))
     app.add_handler(CommandHandler("exit", stop_bot))
     app.add_handler(CommandHandler("cmds", cmds_info))
+    app.add_handler(CommandHandler("dar", dar_creditos))
     app.add_handler(CommandHandler("buy", handle_buy_credits))
     app.add_handler(CommandHandler("getgroups", get_groups))
     # Maneja las respuestas de los botones inline
@@ -566,10 +615,10 @@ async def main():
     print("Bot iniciado...")
     app.run_polling()
 
-import asyncio
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
     #import time
     #time.sleep(30)
     #asyncio.run(stop_bot()) 

@@ -1,4 +1,4 @@
 #!/bin/bash
-python bot-tlg.py &
+python bot_tlg.py &
 python froms.py &
 wait

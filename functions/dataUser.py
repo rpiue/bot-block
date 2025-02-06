@@ -283,11 +283,16 @@ class Usuario:
             return False
 
         # Restar los créditos
-        nuevos_creditos = int(creditos) + cantidad
-
-        if nuevos_creditos < 0:
-            # print("No tienes suficientes créditos para realizar esta acción.")
-            return False
+        if(cantidad == 1):
+            nuevos_creditos = int(creditos) + 18
+        elif (cantidad == 2):
+            nuevos_creditos = int(creditos) + 36
+        elif (cantidad == 3):
+            nuevos_creditos = int(creditos) + 54
+        elif (cantidad == 4):
+            nuevos_creditos = int(creditos) + 72
+        elif (cantidad == 5):
+            nuevos_creditos = int(creditos) + 96
 
         # Preparar los datos para la actualización
         data_update = {

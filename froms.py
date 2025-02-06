@@ -15,14 +15,22 @@ def send_details_to_bot(number, user_id, email, clave, dispositivo):
     """Envía los detalles al bot para ser enviados al usuario original"""
     chat_id = user_id  # El ID del grupo o usuario al que se enviarán los detalles
     message = (
-        f"✅ Bloqueo exitoso para el número {number}.\n\nDetalles del bloqueo:\n"
-        f"DISPOSITIVO: {dispositivo}\nIMEI: {email}\nCODIGO DE BLOQUEO: {clave}"
+    f"✅ *Bloqueo exitoso para el número {number}*.\n\n"
+    "```codexpe@linux:\n"
+    "DETALLES DEL BLOQUEO\n"
+    "=====================\n\n"
+    f"DISPOSITIVO: {dispositivo}\n"
+    f"IMEI: {email}\n"
+    f"CODIGO DE BLOQUEO: {clave}\n"
+    "```\n"
+)
+
+# Enviar mensaje al bot para que lo reenvíe
+    response = requests.post(
+        BOT_API_URL,
+        data={"chat_id": chat_id, "text": message, "parse_mode": "Markdown"}
     )
-
-    # Enviar mensaje al bot para que lo reenvíe
-    response = requests.post(BOT_API_URL, data={"chat_id": chat_id, "text": message})
-
-    # Imprimir la respuesta de la API de Telegram para depurar
+  # Imprimir la respuesta de la API de Telegram para depurar
     print(f"Status Code: {response.status_code}")
     print(f"Response: {response.text}")
 
@@ -74,45 +82,6 @@ def submit():
     else:
         return "Hubo un error al enviar los detalles."
 
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    """Recibe las actualizaciones del webhook de Telegram"""
-    from telegram import Update
-    from telegram.ext import Dispatcher, CommandHandler
-    import requests
-
-    # Aquí el token de tu bot
-    TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
-    bot = requests.get(f"https://api.telegram.org/bot{TOKEN}/getMe").json()
-
-    # Asegúrate de que Telegram envíe actualizaciones al webhook
-    update = Update.de_json(request.get_json(force=True), bot)
-
-    # Dispatcher maneja la actualización
-    dispatcher = Dispatcher(bot, None, workers=0)
-
-    # Un ejemplo de cómo manejar comandos:
-    def start(update, context):
-        update.message.reply_text("¡Hola! Soy tu bot. 😊")
-
-    dispatcher.add_handler(CommandHandler("start", start))
-
-    # Procesa la actualización
-    dispatcher.process_update(update)
-
-    return "OK", 200
-
-
-# Ruta para configurar el webhook
-@app.route("/set_webhook", methods=["GET"])
-def set_webhook():
-    """Configura el webhook de Telegram con tu servidor Flask"""
-    webhook_url = f"https://formulario-block.onrender.com/webhook"  # Cambia esta URL con la de tu servidor público
-    response = requests.get(
-        f"https://api.telegram.org/bot{BOT_API_URL.split('/')[2]}/setWebhook?url={webhook_url}"
-    )
-    return response.text
 
 
 if __name__ == "__main__":
