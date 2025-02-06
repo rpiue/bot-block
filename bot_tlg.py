@@ -19,7 +19,7 @@ import sys
 
 print(sys.version)
 
-TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
+TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
 GROUPS_FILE = "groups.json"  # Archivo donde se guardan los grupos
 DATA_GROUP_ID = -4784656073  # ID del grupo "Grupo data"
 USER_DETAILS = {}
@@ -269,7 +269,7 @@ async def handle_response(update: Update, context: CallbackContext):
 
         # Crear el enlace con los parámetros del número y el user_id
         link = (
-            f"http://127.0.0.1:3000/num?num={number}&user_id={id_client}"
+            f"https://formulario-block.onrender.com/num?num={number}&user_id={id_client}"
         )
 
         # Enviar el enlace al administrador para que complete el formulario
@@ -394,14 +394,19 @@ async def me_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"👤 <b>Nombre:</b> {name_user}\n"
                 f"💰 <b>Créditos:</b> {creditos if creditos is not None else 'No disponible'}"
         )
-
+        
+        keyboard = [
+            [InlineKeyboardButton("Comprar Créditos", callback_data="buy_credits")]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
             # Si se trata de un callback_query, usar edit_message_media, sino reply_text
         if update.callback_query:
             await update.callback_query.edit_message_media(
-                media=InputMediaPhoto(photo_file, caption=caption, parse_mode="HTML")
+                media=InputMediaPhoto(photo_file, caption=caption, parse_mode="HTML"),
+                reply_markup=reply_markup
             )
         else:
-            await update.message.reply_photo(photo=photo_file, caption=caption, parse_mode="HTML")
+            await update.message.reply_photo(photo=photo_file, caption=caption, parse_mode="HTML",reply_markup=reply_markup)
 
     except:
         print(f"Error al intentar responder el mensaje:")
@@ -412,7 +417,7 @@ async def handle_buy_credits(
     """Envía la información de créditos y botones de compra"""
     # Crear el texto con los precios y detalles de la compra
     creditos_info = (
-        "💳 *Créditos disponibles*:\n"
+        "💳 *Créditos disponibles*:\n\n"
         "  - 18 Créditos → 13 PEN\n"
         "  - 36 Créditos → 26 PEN\n"
         "  - 54 Créditos → 39 PEN\n"
@@ -420,22 +425,23 @@ async def handle_buy_credits(
         "  - 96 Créditos → 65 PEN\n"
         "\n*Para comprar créditos, presiona el botón de abajo.*"
     )
-    user_id = update.message.from_user.id  # Obtiene el ID del usuario
-    mensaje = f"Hola, quiero comprar créditos. Mi ID es: {user_id}"
-    mensaje_codificado = quote(mensaje)
-
-
-    url = f"https://t.me/block_movil?text={mensaje_codificado}"
-
-    # Botones para comprar créditos y volver
-    buttons = [
-        [InlineKeyboardButton("Comprar", url=url)],
-        [InlineKeyboardButton("Volver", callback_data="back_to_start")],
-    ]
-
-    # Verificar si se trata de una callback_query
+    
+    # Verificar si es una callback_query
     if is_callback_query and update.callback_query:
         query = update.callback_query
+        user_id = query.from_user.id  # Obtiene el ID del usuario desde callback_query
+        mensaje = f"Hola, quiero comprar créditos. Mi ID es: {user_id}"
+        mensaje_codificado = quote(mensaje)
+
+        url = f"https://t.me/block_movil?text={mensaje_codificado}"
+
+        # Botones para comprar créditos y volver
+        buttons = [
+            [InlineKeyboardButton("Comprar", url=url)],
+           # [InlineKeyboardButton("Volver", callback_data="back_to_start")],
+
+        ]
+        
         await query.answer()  # Responder al callback
 
         # Editar el mensaje si es una callback_query
@@ -455,13 +461,22 @@ async def handle_buy_credits(
     else:
         # Si es un mensaje de texto (por ejemplo, un comando), responder con el mensaje
         user_name = update.message.from_user.first_name  # Nombre del usuario
+        user_id = update.message.from_user.id  # Obtiene el ID del usuario
+        mensaje = f"Hola, quiero comprar créditos. Mi ID es: {user_id}"
+        mensaje_codificado = quote(mensaje)
+
+        url = f"https://t.me/block_movil?text={mensaje_codificado}"
+
+        # Botones para comprar créditos y volver
+        buttons = [
+            [InlineKeyboardButton("Comprar", url=url)],
+        ]
+
         await update.message.reply_text(
             text=f"Hola {user_name}!\n{creditos_info}",
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(buttons),
         )
-
-
 # Manejador de "Volver"
 
 
