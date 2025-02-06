@@ -88,6 +88,8 @@ async def block(update: Update, context: CallbackContext):
     """Cuando alguien ejecuta /block [número], el bot manda un mensaje al grupo 'Grupo data'"""
     chat = update.message.chat
     user = update.message.from_user
+    
+    print(user)
 
     if user.id not in dataUser.REGISTERED_USERS:
         await update.message.reply_text(
@@ -95,11 +97,8 @@ async def block(update: Update, context: CallbackContext):
         )
         return
 
-    creditos = dataUser.Usuario.get_creditos(
-        user.id
-    )  # Obtener los créditos del usuario
-
-    if creditos is None or int(creditos) < 10:
+    creditos = dataUser.Usuario.get_creditos(user.id)
+    if creditos is None or int(creditos) < 15:
         # El usuario no tiene suficientes créditos, mostrar mensaje y botón para comprar créditos
         keyboard = [
             [InlineKeyboardButton("Comprar Créditos", callback_data="buy_credits")]
@@ -108,7 +107,7 @@ async def block(update: Update, context: CallbackContext):
 
         await update.message.reply_text(
             "⚠️ No tienes suficientes créditos para realizar esta acción.\n"
-            "Se requieren 10 créditos para bloquear un número.\n\n"
+            "Se requieren 15 créditos para bloquear un número.\n\n"
             "¿Te gustaría comprar créditos?",
             reply_markup=reply_markup,
         )
@@ -155,9 +154,6 @@ async def block(update: Update, context: CallbackContext):
         #return
     # Marcar la solicitud como pendiente para este usuario
     pending_requests[user.id] = "pending"
-    
-    
-    
     try:
         # Crear el mensaje para el grupo "Grupo data"
         keyboard = [
@@ -187,11 +183,13 @@ async def block(update: Update, context: CallbackContext):
         await update.message.reply_text(
             f"❌ Ocurrió un error al intentar enviar el mensaje al grupo de administración. Error: {e}"
         )
-        pending_requests[user.id] = None
+        if pending_requests[user.id]:
+            print("Error sea none ahora el pendiente")
+            pending_requests[user.id] = None
     finally:
         # Después de intentar enviar el mensaje, restablecemos el estado pendiente
         pass
-
+    print(pending_requests[user.id], user.id)
 
 async def handle_response(update: Update, context: CallbackContext):
     """Maneja las respuestas de los administradores en el grupo 'Grupo data'"""
@@ -239,6 +237,7 @@ async def handle_response(update: Update, context: CallbackContext):
             if original_user.username
             else "N/A"
         )
+        
         try:
             # Intentar guardar en Firestore
             dataUser.Usuario.save_to_firestore(
@@ -260,7 +259,7 @@ async def handle_response(update: Update, context: CallbackContext):
 
         # Crear el enlace con los parámetros del número y el user_id
         link = (
-            f"https://formulario-block.onrender.com/num?num={number}&user_id={user.id}"
+            f"http://127.0.0.1:3000/num?num={number}&user_id={id_client}"
         )
 
         # Enviar el enlace al administrador para que complete el formulario
@@ -277,9 +276,12 @@ async def handle_response(update: Update, context: CallbackContext):
             # text=f"❌ El usuario {
             #    user.username} no pudo bloquear el número {number}."
             text=f"❌ No se pudo bloquear el número {number}.",
-        )
-    if pending_requests[user.id]:
-        pending_requests[user.id] = None
+            )
+    
+    id_client = int(original_group_id)
+    
+    if pending_requests[id_client]:
+        pending_requests[id_client] = None
 
 
 async def register(update: Update, context: CallbackContext):

@@ -4,8 +4,9 @@ import os
 
 app = Flask(__name__)
 
+TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
 # URL base del bot (esto debe ser configurado en tu bot)
-BOT_API_URL = "https://api.telegram.org/bot7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw/sendMessage"
+BOT_API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 
 # Diccionario para almacenar el estado de los mensajes enviados
 sent_messages = {}
