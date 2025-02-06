@@ -16,6 +16,7 @@ from functions import dataUser
 from collections import defaultdict
 import sys
 
+
 print(sys.version)
 
 TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
@@ -133,8 +134,23 @@ async def block(update: Update, context: CallbackContext):
         )
         return
     else:
-        await update.message.reply_text(
-            "✅ Solicitud Enviada. Por favor, espera una respuesta antes de enviar otra solicitud."
+        from datetime import datetime, time
+        import pytz
+        peru_tz = pytz.timezone('America/Lima')
+        current_time = datetime.now(peru_tz).time()
+        start_time = time(8, 0, 0)  # 8:00 AM
+        end_time = time(12, 0, 0)  # 12:00 PM
+
+        if start_time <= current_time <= end_time:
+            await update.message.reply_text(
+                "✅ Solicitud Enviada. Por favor, espera una respuesta antes de enviar otra solicitud."
+            )
+        else:
+            await update.message.reply_text(
+                "✅ <b>Tu solicitud ha sido enviada.</b>\n\n"
+                "⚠️ Pero no hay solicitudes telefónicas en este momento.\n\n"
+                "🕒 El horario de atención es de <b>8:00 AM a 12:00 PM.</b>"
+                , parse_mode="HTML"
             )
         #return
     # Marcar la solicitud como pendiente para este usuario
