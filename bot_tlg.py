@@ -132,10 +132,16 @@ async def block(update: Update, context: CallbackContext):
             "⚠️ Ya tienes una solicitud pendiente. Por favor, espera una respuesta antes de enviar otra solicitud."
         )
         return
-
+    else:
+        await update.message.reply_text(
+            "✅ Solicitud Enviada. Por favor, espera una respuesta antes de enviar otra solicitud."
+            )
+        #return
     # Marcar la solicitud como pendiente para este usuario
     pending_requests[user.id] = "pending"
-
+    
+    
+    
     try:
         # Crear el mensaje para el grupo "Grupo data"
         keyboard = [
@@ -165,6 +171,7 @@ async def block(update: Update, context: CallbackContext):
         await update.message.reply_text(
             f"❌ Ocurrió un error al intentar enviar el mensaje al grupo de administración. Error: {e}"
         )
+        pending_requests[user.id] = None
     finally:
         # Después de intentar enviar el mensaje, restablecemos el estado pendiente
         pass
@@ -564,6 +571,17 @@ async def dar_creditos(update: Update, context: CallbackContext) -> None:
         if cantidad <= 0:
             await update.message.reply_text("La cantidad de créditos debe ser mayor que cero.")
             return
+        creditosINI = 0
+        if(cantidad == 1):
+            creditosINI = 18
+        if(cantidad == 2):
+            creditosINI = 36
+        if(cantidad == 3):
+            creditosINI = 54
+        if(cantidad == 4):
+            creditosINI = 72
+        if(cantidad == 5):
+            creditosINI = 96
         
         if str(target_user) not in map(str, dataUser.REGISTERED_USERS):
             await update.message.reply_text(
@@ -573,7 +591,7 @@ async def dar_creditos(update: Update, context: CallbackContext) -> None:
             return
         
         dataUser.Usuario.agg_creditos(target_user, cantidad)
-        await update.message.reply_text(f"Has dado {cantidad} créditos a {target_user}. 🎉")
+        await update.message.reply_text(f"Has dado {creditosINI} créditos a {target_user}. 🎉")
 
     except (IndexError, ValueError):
         await update.message.reply_text(
