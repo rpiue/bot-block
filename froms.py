@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__)
 
-TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
+TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
 # URL base del bot (esto debe ser configurado en tu bot)
 BOT_API_URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
 

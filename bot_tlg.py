@@ -19,7 +19,7 @@ import sys
 
 print(sys.version)
 
-TOKEN = "7113005692:AAH1fYlejoJDfUwHf1TFWNRzG3MnTdSbZOY"
+TOKEN = "7763640388:AAESPVEDsRhOugcpqv38vkrggcVY7vnwxKw"
 GROUPS_FILE = "groups.json"  # Archivo donde se guardan los grupos
 DATA_GROUP_ID = -4784656073  # ID del grupo "Grupo data"
 USER_DETAILS = {}
